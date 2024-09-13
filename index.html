@@ -232,17 +232,6 @@
                     tacheDiv.style.backgroundColor = '#f8d7da';
                 }
             }
-            updateTaskColorOnDrop(tacheDiv, listId) {
-                const priority = tacheDiv.dataset.priority;
-
-                if (listId === 'to-do') {
-                    this.setTaskColor(tacheDiv, priority);
-                } else if (listId === 'in-progress') {
-                    tacheDiv.style.backgroundColor = '#fff3cd';
-                } else if (listId === 'done') {
-                    tacheDiv.style.backgroundColor = '#f8d7da';
-                }
-            }
         }
         const taskManager = new TaskManager();
 
@@ -262,6 +251,5 @@
             }
         });
     </script>
-
 </body>
 </html>
