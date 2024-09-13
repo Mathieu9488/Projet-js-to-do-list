@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .list {
+            width: 30%;
+            background-color: white;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .list h2 {
+            text-align: center;
+        }
+        .task {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .task-name {
+            font-weight: bold;
+        }
+        .task-desc {
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .task-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        input, textarea, select {
+            width: 40%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        button {
+            background-color: #000000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        .center {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Aller c'est parti</h1>
+    <div class="input-container">
+        <input type="text" id="new-task-name" placeholder="Nom de la nouvelle tâche">
+        <textarea id="new-task-desc" placeholder="Description de la tâche"></textarea>
+        <select id="task-priority">
+            <option value="low">Faible importance (Vert)</option>
+            <option value="medium">Moyenne importance (Orange)</option>
+            <option value="high">Haute importance (Rouge)</option>
+        </select>
+        <div class="center">
+            <button onclick="taskManager.ajouterTache()">Ajouter</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="list" id="to-do">
+            <h2>To Do</h2>
+        </div>
+        <div class="list" id="in-progress">
+            <h2>In Progress</h2>
+        </div>
+        <div class="list" id="done">
+            <h2>Done</h2>
+        </div>
+    </div>
+
+    <script>
+        class TaskManager {
+            constructor() {
+                this.taskIdCounter = 0;
+                this.lists = document.getElementsByClassName('list');
+                this.initDragAndDrop();
+            }
+            ajouterTache() {
+                const nomTache = document.getElementById('new-task-name').value;
+                const descTache = document.getElementById('new-task-desc').value;
+                const priority = document.getElementById('task-priority').value;
+
+                if (nomTache !== "" && descTache !== "") {
+                    const tache = this.creerElementTache(nomTache, descTache, priority);
+                    document.getElementById('to-do').appendChild(tache);
+
+                    document.getElementById('new-task-name').value = '';
+                    document.getElementById('new-task-desc').value = '';
+                    document.getElementById('task-priority').value = 'low';
+                } else {
+                    alert("Veuillez renseigner le nom et la description.");
+                }
+            }
+            creerElementTache(nom, description, priority) {
+                const tacheDiv = document.createElement('div');
+                tacheDiv.className = 'task';
+                tacheDiv.id = 'task-' + this.taskIdCounter++;
+                tacheDiv.setAttribute('draggable', true);
+
+                tacheDiv.dataset.priority = priority;
+                this.setTaskColor(tacheDiv, priority);
+
+                const nomTacheDiv = document.createElement('div');
+                nomTacheDiv.className = 'task-name';
+                nomTacheDiv.innerText = nom;
+                tacheDiv.appendChild(nomTacheDiv);
+
+                const descTacheDiv = document.createElement('div');
+                descTacheDiv.className = 'task-desc';
+                descTacheDiv.innerText = description;
+                tacheDiv.appendChild(descTacheDiv);
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'task-actions';
+
+                const boutonModifier = document.createElement('button');
+                boutonModifier.innerText = 'Modifier';
+                boutonModifier.onclick = () => {
+                    this.modifierTache(tacheDiv, nomTacheDiv, descTacheDiv);
+                };
+                actionsDiv.appendChild(boutonModifier);
+                const boutonSupprimer = document.createElement('button');
+                boutonSupprimer.innerText = 'Supprimer';
+                boutonSupprimer.onclick = () => {
+                    tacheDiv.remove();
+                };
+                actionsDiv.appendChild(boutonSupprimer);
+
+                tacheDiv.appendChild(actionsDiv);
+
+                return tacheDiv;
+            }
+            modifierTache(tacheDiv, nomTacheDiv, descTacheDiv) {
+                const nouveauNom = prompt("Modifier le nom de la tâche", nomTacheDiv.innerText);
+                const nouvelleDesc = prompt("Modifier la description de la tâche", descTacheDiv.innerText);
+                if (nouveauNom !== null) {
+                    nomTacheDiv.innerText = nouveauNom;
+                }
+                if (nouvelleDesc !== null) {
+                    descTacheDiv.innerText = nouvelleDesc;
+                }
+            }
+            initDragAndDrop() {
+                for (let i = 0; i < this.lists.length; i++) {
+                    this.lists[i].addEventListener('dragover', (event) => {
+                        event.preventDefault();
+                    });
+                    this.lists[i].addEventListener('drop', (event) => {
+                        event.preventDefault();
+                        const idTache = event.dataTransfer.getData('text');
+                        const tache = document.getElementById(idTache);
+
+                        if (event.target.classList.contains('list')) {
+                            event.target.appendChild(tache);
+                            this.updateTaskColorOnDrop(tache, event.target.id);
+                        }
+                    });
+                }
+            }
+            setTaskColor(tacheDiv, priority) {
+                if (priority === 'low') {
+                    tacheDiv.style.backgroundColor = '#d4edda';
+                } else if (priority === 'medium') {
+                    tacheDiv.style.backgroundColor = '#fff3cd';
+                } else if (priority === 'high') {
+                    tacheDiv.style.backgroundColor = '#f8d7da';
+                }
+            }
+                updateTaskColorOnDrop(tacheDiv, listId) {
+                const priority = tacheDiv.dataset.priority;
+
+                if (listId === 'to-do') {
+                    this.setTaskColor(tacheDiv, priority);
+                } else if (listId === 'in-progress') {
+                    tacheDiv.style.backgroundColor = '#fff3cd';
+                } else if (listId === 'done') {
+                    tacheDiv.style.backgroundColor = '#f8d7da';
+                }
+            }
+        }
+        const taskManager = new TaskManager();
+        document.addEventListener('dragstart', function(event) {
+            if (event.target.classList.contains('task')) {
+                event.dataTransfer.setData('text', event.target.id);
+            }
+        });
+    </script>
+</body>
+</html>
+
