@@ -176,6 +176,7 @@
                 descTacheDiv.className = 'task-desc';
                 descTacheDiv.innerText = description;
                 tacheDiv.appendChild(descTacheDiv);
+                
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'task-actions';
 
@@ -199,10 +200,10 @@
             modifierTache(tacheDiv, nomTacheDiv, descTacheDiv) {
                 const nouveauNom = prompt("Modifier le nom de la tâche", nomTacheDiv.innerText);
                 const nouvelleDesc = prompt("Modifier la description de la tâche", descTacheDiv.innerText);
-                if (nouveauNom !== null) {
+                if (nouveauNom !== '') {
                     nomTacheDiv.innerText = nouveauNom;
                 }
-                if (nouvelleDesc !== null) {
+                if (nouvelleDesc !== '') {
                     descTacheDiv.innerText = nouvelleDesc;
                 }
             }
@@ -218,7 +219,6 @@
 
                         if (event.target.classList.contains('list')) {
                             event.target.appendChild(tache);
-                            this.updateTaskColorOnDrop(tache, event.target.id);
                         }
                     });
                 }
