@@ -45,23 +45,8 @@
             display: flex;
             justify-content: space-between;
         }
-        .input-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        input, textarea, select {
-            width: 40%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
-        }
         button {
-            background-color: #000000;
+            background-color: #000;
             color: white;
             padding: 10px 20px;
             border: none;
@@ -70,28 +55,57 @@
             font-size: 1em;
             transition: background-color 0.3s ease, transform 0.1s ease;
         }
-        .center {
-            align-items: center;
+        .popup-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            width: 300px;
+        }
+        .popup-form input, .popup-form textarea, .popup-form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .popup-button {
+            background-color: black;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .center-button {
             display: flex;
             justify-content: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
     <h1>Aller c'est parti</h1>
-    <div class="input-container">
-        <input type="text" id="new-task-name" placeholder="Nom de la nouvelle tâche">
-        <textarea id="new-task-desc" placeholder="Description de la tâche"></textarea>
-        <select id="task-priority">
-            <option value="low">Faible importance (Vert)</option>
-            <option value="medium">Moyenne importance (Orange)</option>
-            <option value="high">Haute importance (Rouge)</option>
-        </select>
-        <div class="center">
-            <button onclick="taskManager.ajouterTache()">Ajouter</button>
-        </div>
+    <div class="center-button">
+        <button class="popup-button" onclick="openPopup()">Ajouter une tâche</button>
     </div>
 
     <div class="container">
@@ -105,6 +119,20 @@
             <h2>Done</h2>
         </div>
     </div>
+
+    <div class="popup-form" id="popup-form">
+        <input type="text" id="new-task-name" placeholder="Nom de la nouvelle tâche">
+        <textarea id="new-task-desc" placeholder="Description de la tâche"></textarea>
+        <select id="task-priority">
+            <option value="low">Faible importance</option>
+            <option value="medium">Moyenne importance</option>
+            <option value="high">Haute importance</option>
+        </select>
+        <button onclick="taskManager.ajouterTache()">Ajouter</button>
+        <button onclick="closePopup()">Fermer</button>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closePopup()"></div>
 
     <script>
         class TaskManager {
@@ -125,6 +153,7 @@
                     document.getElementById('new-task-name').value = '';
                     document.getElementById('new-task-desc').value = '';
                     document.getElementById('task-priority').value = 'low';
+                    closePopup();
                 } else {
                     alert("Veuillez renseigner le nom et la description.");
                 }
@@ -203,7 +232,7 @@
                     tacheDiv.style.backgroundColor = '#f8d7da';
                 }
             }
-                updateTaskColorOnDrop(tacheDiv, listId) {
+            updateTaskColorOnDrop(tacheDiv, listId) {
                 const priority = tacheDiv.dataset.priority;
 
                 if (listId === 'to-do') {
@@ -216,12 +245,23 @@
             }
         }
         const taskManager = new TaskManager();
+
+        function openPopup() {
+            document.getElementById('popup-form').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('popup-form').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
         document.addEventListener('dragstart', function(event) {
             if (event.target.classList.contains('task')) {
                 event.dataTransfer.setData('text', event.target.id);
             }
         });
     </script>
+
 </body>
 </html>
-
